@@ -56,6 +56,7 @@
                                         <exclude>me/yic/xconomy/task/RunBaltop.class</exclude>
                                         <exclude>me/yic/xconomy/adapter/comp/CPlugin.class</exclude>
                                         <exclude>me/yic/xconomy/adapter/comp/CallAPI.class</exclude>
+                                        <exclude>org/mariadb/**</exclude>
                                         <exclude>me/yic/xc_libs/pool2/**</exclude>
                                         <exclude>me/yic/xc_libs/redis/**</exclude>
                                     </excludes>
@@ -68,6 +69,7 @@
                     <artifactSet>
                         <includes>
                             <include>me.yic:XConomy-Bukkit</include>
+                            <include>org.mariadb.jdbc:mariadb-java-client</include>
                         </includes>
                     </artifactSet>
                     <relocations>

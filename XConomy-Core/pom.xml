@@ -50,6 +50,13 @@
             <version>5.0.1</version>
             <scope>compile</scope>
         </dependency>
+        <!--MariaDB JDBC driver-->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>${mariadb-java-client.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <!--Redis-->
         <dependency>
             <groupId>redis.clients</groupId>

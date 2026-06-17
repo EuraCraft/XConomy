@@ -29,6 +29,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
+    private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
     private String driver = "com.mysql.jdbc.Driver";
     //============================================================================================
     private final File dataFolder = XConomy.getInstance().getPDataFolder();
@@ -60,7 +61,7 @@ public class DatabaseConnection {
         hikari.addDataSourceProperty("prepStmtCacheSize", "250");
         hikari.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         hikari.addDataSourceProperty("userServerPrepStmts", "true");
-        if (XConomyLoad.DDrivers || XConomy.version.equals("Sponge8")) {
+        if (XConomyLoad.DDrivers || XConomy.version.equals("Sponge8") || XConomyLoad.DConfig.getStorageType() == 3) {
             hikari.setDriverClassName(driver);
         }
         if (hikari.getMinimumIdle() < hikari.getMaximumPoolSize()) {
@@ -89,7 +90,8 @@ public class DatabaseConnection {
                         driver = ("me.yic.libs.mysql.cj.jdbc.Driver");
                         break;
                     case 3:
-                        driver = ("me.yic.libs.mariadb.jdbc.Driver");
+                        // MariaDB must be available in the plugin classloader for Paper/Hikari.
+                        driver = MARIADB_DRIVER;
                         break;
                 }
             } else {
@@ -107,7 +109,7 @@ public class DatabaseConnection {
                         driver = ("com.mysql.cj.jdbc.Driver");
                         break;
                     case 3:
-                        driver = ("org.mariadb.jdbc.Driver");
+                        driver = MARIADB_DRIVER;
                         break;
                 }
             }
@@ -121,6 +123,9 @@ public class DatabaseConnection {
         setDriver();
         try {
             if (XConomyLoad.DConfig.EnableConnectionPool) {
+                if (XConomyLoad.DConfig.getStorageType() == 3) {
+                    Class.forName(driver);
+                }
                 createNewHikariConfiguration();
                 Connection connection = getConnection();
                 closeHikariConnection(connection);

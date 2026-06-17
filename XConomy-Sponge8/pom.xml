@@ -82,6 +82,7 @@
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
+                            <include>org.mariadb.jdbc:mariadb-java-client</include>
                             <include>redis.clients:jedis</include>
                             <include>org.apache.commons:commons-pool2</include>
                             <include>me.yic:XConomy-Core</include>
