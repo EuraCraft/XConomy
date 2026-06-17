@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class VaultHook{
@@ -38,17 +39,10 @@ public class VaultHook{
         if (rsp != null) {
             vaultPerm = rsp.getProvider();
         }
-        XConomy.getInstance().getServer().getServicesManager().register(Economy.class, econ, XConomy.getInstance(), ServicePriority.Normal);
+        XConomy.getInstance().getServer().getServicesManager().register(Economy.class, econ, XConomy.getInstance(), ServicePriority.Highest);
 
-        if (XConomyLoad.Config.DISABLE_ESSENTIAL) {
-            Collection<RegisteredServiceProvider<Economy>> econs = Bukkit.getPluginManager().getPlugin("Vault").getServer().getServicesManager().getRegistrations(Economy.class);
-            for (RegisteredServiceProvider<Economy> econ : econs) {
-                if (econ.getProvider().getName().equalsIgnoreCase("Essentials Economy")||
-                        econ.getProvider().getName().equalsIgnoreCase("EssentialsX Economy")) {
-                    XConomy.getInstance().getServer().getServicesManager().unregister(econ.getProvider());
-                }
-            }
-        }
+        unregisterEssentialsEconomy();
+        Bukkit.getScheduler().runTaskLater(XConomy.getInstance(), VaultHook::ensureXConomyProvider, 20L);
     }
 
     public static boolean loadcm() {
@@ -62,5 +56,28 @@ public class VaultHook{
 
     public static void unload() {
         XConomy.getInstance().getServer().getServicesManager().unregister(econ);
+    }
+
+    private static void unregisterEssentialsEconomy() {
+        if (!XConomyLoad.Config.DISABLE_ESSENTIAL) {
+            return;
+        }
+        Collection<RegisteredServiceProvider<Economy>> econs = Bukkit.getPluginManager().getPlugin("Vault").getServer().getServicesManager().getRegistrations(Economy.class);
+        for (RegisteredServiceProvider<Economy> registeredEconomy : new ArrayList<>(econs)) {
+            String name = registeredEconomy.getProvider().getName();
+            if (name.equalsIgnoreCase("Essentials Economy") || name.equalsIgnoreCase("EssentialsX Economy")) {
+                XConomy.getInstance().getServer().getServicesManager().unregister(registeredEconomy.getProvider());
+            }
+        }
+    }
+
+    private static void ensureXConomyProvider() {
+        unregisterEssentialsEconomy();
+        RegisteredServiceProvider<Economy> rsp = XConomy.getInstance().getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null || !rsp.getProvider().getName().equalsIgnoreCase("XConomy")) {
+            XConomy.getInstance().getServer().getServicesManager().unregister(econ);
+            XConomy.getInstance().getServer().getServicesManager().register(Economy.class, econ, XConomy.getInstance(), ServicePriority.Highest);
+            XConomy.getInstance().logger(null, 1, "XConomy re-registered as the preferred Vault economy provider");
+        }
     }
 }

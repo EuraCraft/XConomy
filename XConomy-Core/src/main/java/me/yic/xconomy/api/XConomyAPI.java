@@ -28,6 +28,8 @@ import me.yic.xconomy.data.caches.Cache;
 import me.yic.xconomy.data.syncdata.PlayerData;
 import me.yic.xconomy.info.PermissionINFO;
 import me.yic.xconomy.info.SyncChannalType;
+import me.yic.xconomy.integration.euraboard.EuraBoardEconomyRecord;
+import me.yic.xconomy.integration.euraboard.EuraBoardEconomyService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class XConomyAPI {
+    private final EuraBoardEconomyService euraBoardEconomyService = new EuraBoardEconomyService();
 
     public String getversion() {
         return XConomy.PVersion;
@@ -62,6 +65,14 @@ public class XConomyAPI {
 
     public PlayerData getPlayerData(String name) {
         return DataCon.getPlayerData(name);
+    }
+
+    public EuraBoardEconomyRecord getEuraBoardEconomyRecord(UUID uid) {
+        return euraBoardEconomyService.getByXConomyPlayerId(uid);
+    }
+
+    public EuraBoardEconomyRecord getEuraBoardEconomyRecord(String name) {
+        return euraBoardEconomyService.getByPlayerName(name);
     }
 
     public boolean createNonPlayerData(String account) {

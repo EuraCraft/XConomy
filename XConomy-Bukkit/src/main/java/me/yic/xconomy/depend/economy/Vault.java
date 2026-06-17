@@ -27,9 +27,11 @@ import me.yic.xconomy.data.syncdata.PlayerData;
 import me.yic.xconomy.depend.NonPlayerPlugin;
 import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,32 +39,27 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public EconomyResponse bankBalance(String arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
     public EconomyResponse bankDeposit(String arg0, double arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
     public EconomyResponse bankHas(String arg0, double arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
     public EconomyResponse bankWithdraw(String arg0, double arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
     public EconomyResponse createBank(String arg0, String arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
@@ -70,7 +67,11 @@ public class Vault extends AbstractEconomy {
         if (isNonPlayerAccount(name)){
             return DataLink.newAccount(name);
         }
-        return true;
+        OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+        if (player.isOnline() || player.hasPlayedBefore()) {
+            return createPlayerAccount(player);
+        }
+        return DataCon.getPlayerData(name) != null;
     }
 
     @Override
@@ -110,12 +111,14 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public EconomyResponse deleteBank(String arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
     public EconomyResponse depositPlayer(String name, double amount) {
+        if (!isValidAmount(amount)) {
+            return invalidAmountResponse();
+        }
         if (AdapterManager.BanModiftyBalance()) {
             return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE,
                     "[BungeeCord] No player in server");
@@ -144,6 +147,9 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer pp, double amount) {
+        if (!isValidAmount(amount)) {
+            return invalidAmountResponse();
+        }
         if (AdapterManager.BanModiftyBalance()) {
             return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE,
                     "[BungeeCord] No player in server");
@@ -226,8 +232,7 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public List<String> getBanks() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -281,20 +286,17 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public boolean hasBankSupport() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public EconomyResponse isBankMember(String arg0, String arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
     public EconomyResponse isBankOwner(String arg0, String arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        return bankFailure();
     }
 
     @Override
@@ -304,6 +306,9 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public EconomyResponse withdrawPlayer(String name, double amount) {
+        if (!isValidAmount(amount)) {
+            return invalidAmountResponse();
+        }
         if (AdapterManager.BanModiftyBalance()) {
             return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE,
                     "[BungeeCord] No player in server");
@@ -332,6 +337,9 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer pp, double amount) {
+        if (!isValidAmount(amount)) {
+            return invalidAmountResponse();
+        }
         if (AdapterManager.BanModiftyBalance()) {
             return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE,
                     "[BungeeCord] No player in server");
@@ -393,6 +401,18 @@ public class Vault extends AbstractEconomy {
         } else {
             return DataCon.containinfieldslist(name);
         }
+    }
+
+    private boolean isValidAmount(double amount) {
+        return amount > 0.0D && !Double.isNaN(amount) && !Double.isInfinite(amount);
+    }
+
+    private EconomyResponse invalidAmountResponse() {
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE, "Invalid amount!");
+    }
+
+    private EconomyResponse bankFailure() {
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.FAILURE, "XConomy does not support bank accounts.");
     }
 
 }
