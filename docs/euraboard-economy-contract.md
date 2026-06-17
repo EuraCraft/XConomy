@@ -22,6 +22,11 @@ Build from the repository root so Maven can resolve the local module dependencie
 mvn clean install
 ```
 
+Build dependency notes:
+
+- `XConomy-Core` uses `net.md-5:bungeecord-api:1.16-R0.1` because the previous `1.15-SNAPSHOT` jar and javadoc artifacts are not resolvable from the configured repositories during a root build.
+- `XConomy-Bukkit` uses `me.clip:placeholderapi:2.11.7` because `2.11.1` is not resolvable from the configured repositories during a root build.
+
 ## Balance Source
 
 The canonical in-memory class is:
